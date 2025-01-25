@@ -1,24 +1,43 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Get Repository Lannguages
+description: Gets repository languages using the GitHub API
+author: Iker Saint
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: activity
+  color: blue
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
-    required: true
-    default: '1000'
+  gh-token:
+    description: GH token used to retrieve the repository languages
+    required: false
+    default: ${{ github.token }}
+  repo-owner:
+    description: Repository owner
+    required: false
+    default: ${{ github.repository_owner }}
+  repo:
+    description: Repository name
+    required: false
+    default: ${{ github.event.repository.name }}
+  allowed-languages:
+    description: >
+      Allowed languages list separated by commas; those not in this list are
+      filtered out. e.g: "Javascript,Typescript,Java,C#,Golang,Rust,Python"
+    required: false
+    default: ''
+  allowed-threshold:
+    description: >
+      Minimum language percentage for it to be included in the results
+    required: false
+    default: '0'
 
 # Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  languages:
+    description: Repository languages as a string contaning a JSON array
 
 runs:
-  using: node20
+  using: node16
   main: dist/index.js

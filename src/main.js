@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import * as github from '@actions/github'
 
 /**
  * The main function for the action.
@@ -8,18 +8,59 @@ import { wait } from './wait.js'
  */
 export async function run() {
   try {
-    const ms = core.getInput('milliseconds')
+    const token = core.getInput('gh-token')
+    const owner = core.getInput('repo-owner')
+    const repo = core.getInput('repo')
+    const allowed_languages_str = core.getInput('allowed-languages')
+    const allowed_threshold = parseInt(core.getInput('allowed-threshold'))
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    core.info(`Initializing client`)
+    const gh_client = github.getOctokit(token)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    core.info(`Pulling languages from ${owner}/${repo}`)
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const resp = await gh_client.request(
+      `GET /repos/${owner}/${repo}/languages`
+    )
+
+    let languages = resp.data
+
+    core.debug(`Got ${JSON.stringify(resp.data)}`)
+
+    const total = Object.values(languages).reduce(
+      (accumulator, current) => accumulator + current,
+      0
+    )
+
+    core.debug(`Total lines ${total}`)
+
+    if (allowed_languages_str.trim().length > 0) {
+      let allowed = allowed_languages_str
+        .split(',')
+        .map((x) => x.trim().toLowerCase())
+
+      core.info(`Filtering for Languages in ${allowed}`)
+
+      Object.keys(languages)
+        .filter((key) => !allowed.includes(key.toLowerCase()))
+        .forEach((key) => delete languages[key])
+
+      core.debug(`After language filter ${JSON.stringify(languages)}`)
+    }
+
+    if (allowed_threshold > 0) {
+      core.info(`Filtering for threshold ${allowed_threshold}%`)
+
+      Object.keys(languages)
+        .filter((key) => (languages[key] / total) * 100 < allowed_threshold)
+        .forEach((key) => delete languages[key])
+
+      core.debug(`After threshold filter ${JSON.stringify(languages)}`)
+    }
+
+    core.info(`Output ${JSON.stringify(languages)}`)
+
+    core.setOutput('languages', JSON.stringify(Object.keys(languages)))
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
