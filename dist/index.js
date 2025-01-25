@@ -31254,7 +31254,7 @@ async function run() {
 
     let languages = resp.data;
 
-    coreExports.debug(`Got ${JSON.stringify(resp.data)}`);
+    coreExports.info(`Got ${JSON.stringify(resp.data)}`);
 
     const total = Object.values(languages).reduce(
       (accumulator, current) => accumulator + current,
@@ -31287,7 +31287,7 @@ async function run() {
       coreExports.debug(`After threshold filter ${JSON.stringify(languages)}`);
     }
 
-    coreExports.info(`Output ${JSON.stringify(languages)}`);
+    coreExports.info(`Languages returned ${JSON.stringify(Object.keys(languages))}`);
 
     coreExports.setOutput('languages', JSON.stringify(Object.keys(languages)));
   } catch (error) {
