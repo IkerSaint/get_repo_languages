@@ -13,14 +13,10 @@ inputs:
     description: GH token used to retrieve the repository languages
     required: false
     default: ${{ github.token }}
-  repo-owner:
-    description: Repository owner
+  repository:
+    description: The owner and repository name (owner/repository)
     required: false
-    default: ${{ github.repository_owner }}
-  repo:
-    description: Repository name
-    required: false
-    default: ${{ github.event.repository.name }}
+    default: ${{ github.repository }}
   allowed-languages:
     description: >
       Allowed languages list separated by commas; those not in this list are

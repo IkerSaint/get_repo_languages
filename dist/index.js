@@ -31238,19 +31238,18 @@ var githubExports = requireGithub();
 async function run() {
   try {
     const token = coreExports.getInput('gh-token');
-    const owner = coreExports.getInput('repo-owner');
-    const repo = coreExports.getInput('repo');
+    const repo = coreExports.getInput('repository');
     const allowed_languages_str = coreExports.getInput('allowed-languages');
     const allowed_threshold = parseInt(coreExports.getInput('allowed-threshold'));
 
     coreExports.info(`Initializing client`);
-    const gh_client = githubExports.getOctokit(token);
+    const gh_client = githubExports.getOctokit(token, {
+      userAgent: 'get-repo-languages'
+    });
 
-    coreExports.info(`Pulling languages from ${owner}/${repo}`);
+    coreExports.info(`Pulling languages from ${repo}`);
 
-    const resp = await gh_client.request(
-      `GET /repos/${owner}/${repo}/languages`
-    );
+    const resp = await gh_client.request(`GET /repos/${repo}/languages`);
 
     let languages = resp.data;
 
@@ -31261,7 +31260,7 @@ async function run() {
       0
     );
 
-    coreExports.debug(`Total lines ${total}`);
+    coreExports.debug(`Total bytes ${total}`);
 
     if (allowed_languages_str.trim().length > 0) {
       let allowed = allowed_languages_str

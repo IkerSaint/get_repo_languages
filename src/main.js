@@ -9,19 +9,18 @@ import * as github from '@actions/github'
 export async function run() {
   try {
     const token = core.getInput('gh-token')
-    const owner = core.getInput('repo-owner')
-    const repo = core.getInput('repo')
+    const repo = core.getInput('repository')
     const allowed_languages_str = core.getInput('allowed-languages')
     const allowed_threshold = parseInt(core.getInput('allowed-threshold'))
 
     core.info(`Initializing client`)
-    const gh_client = github.getOctokit(token)
+    const gh_client = github.getOctokit(token, {
+      userAgent: 'get-repo-languages'
+    })
 
-    core.info(`Pulling languages from ${owner}/${repo}`)
+    core.info(`Pulling languages from ${repo}`)
 
-    const resp = await gh_client.request(
-      `GET /repos/${owner}/${repo}/languages`
-    )
+    const resp = await gh_client.request(`GET /repos/${repo}/languages`)
 
     let languages = resp.data
 
@@ -32,7 +31,7 @@ export async function run() {
       0
     )
 
-    core.debug(`Total lines ${total}`)
+    core.debug(`Total bytes ${total}`)
 
     if (allowed_languages_str.trim().length > 0) {
       let allowed = allowed_languages_str
