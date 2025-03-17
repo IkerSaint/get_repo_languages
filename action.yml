@@ -20,7 +20,7 @@ inputs:
   allowed-languages:
     description: >
       Allowed languages list separated by commas; those not in this list are
-      filtered out. e.g: "Javascript,Typescript,Java,C#,Golang,Rust,Python"
+      filtered out. e.g: "Javascript,Typescript,Java,C#,Golang,Rust"
     required: false
     default: ''
   allowed-threshold:
