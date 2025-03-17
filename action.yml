@@ -35,5 +35,5 @@ outputs:
     description: Repository languages as a string contaning a JSON array
 
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
